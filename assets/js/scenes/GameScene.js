@@ -5,8 +5,9 @@ class GameScene extends Phaser.Scene {
 
   init() {
     this.scene.launch('Ui');
-    this.score = 0;
   }
+
+
 
   create() {
     this.createMap();
@@ -21,7 +22,11 @@ class GameScene extends Phaser.Scene {
   }
 
   createAudio() {
-    this.goldPickupAudio = this.sound.add('goldSound', { loop: false, volume: 0.2 });
+    this.goldPickupAudio = this.sound.add('goldSound', { loop: false, volume: 0.3 });
+    this.playerAttackAudio = this.sound.add('playerAttack', { loop: false, volume: 0.03 });
+    this.playerDamageAudio = this.sound.add('playerDamage', { loop: false, volume: 0.2 });
+    this.playerDeathAudio = this.sound.add('playerDeath', { loop: false, volume: 0.2 });
+    this.monsterDeathAudio = this.sound.add('ennemyDeath', { loop: false, volume: 0.2 });
   }
 
   createPlayer(playerObject) {
@@ -33,7 +38,9 @@ class GameScene extends Phaser.Scene {
       0,
       playerObject.health,
       playerObject.maxHealth,
-      playerObject.id);
+      playerObject.id,
+      this.playerAttackAudio,
+      );
   }
 
   createGroups() {
@@ -41,6 +48,7 @@ class GameScene extends Phaser.Scene {
     this.chests = this.physics.add.group();
     // créer un groupe de monstres
     this.monsters = this.physics.add.group();
+    this.monsters.runChildUpdate = true; 
   }
 
   spawnChest(chestObject) {
@@ -64,8 +72,8 @@ class GameScene extends Phaser.Scene {
     if (!monster) {
       monster = new Monster(
         this,
-        monsterObject.x * 2, 
-        monsterObject.y * 2, 
+        monsterObject.x, 
+        monsterObject.y, 
         'monsters', 
         monsterObject.frame,
         monsterObject.id,
@@ -79,7 +87,7 @@ class GameScene extends Phaser.Scene {
       monster.health = monsterObject.health;
       monster.maxHealth = monsterObject.maxHealth;
       monster.setTexture('monsters', monsterObject.frame);
-      monster.setPosition(monsterObject.x * 2, monsterObject.y * 2);
+      monster.setPosition(monsterObject.x, monsterObject.y);
       monster.makeActive();
     }
   }
@@ -102,24 +110,19 @@ class GameScene extends Phaser.Scene {
     this.physics.add.overlap(this.player.weapon, this.monsters, this.ennemyOverlap, null, this);
   }
 
-  ennemyOverlap(player, ennemy) {
+  ennemyOverlap(weapon, ennemy) {
     if (this.player.playerAttacking && !this.player.swordHit) {
       this.player.swordHit = true;
-      this.events.emit('monsterAttacked', ennemy.id);
+      this.events.emit('monsterAttacked', ennemy.id, this.player.id);
     }
   }
 
   collectChest(player, chest) {
     // joue le son du gold pickup
     this.goldPickupAudio.play();
-    // mettre a jour le score
-    this.score += chest.coins;
-    // afficher le nouveau score
-    this.events.emit('updateScore', this.score);
-    // rendre l'objet "coffre" inactif
-    chest.makeInactive();
+
     // faire apparaitre un nouveau coffre
-    this.events.emit('pickUpChest', chest.id);
+    this.events.emit('pickUpChest', chest.id, this.player.id);
   }
 
   createMap() {
@@ -145,6 +148,15 @@ class GameScene extends Phaser.Scene {
       this.monsters.getChildren().forEach((monster) => {
         if (monster.id === monsterId) {
           monster.makeInactive();
+          this.monsterDeathAudio.play();
+        }
+      })
+    });
+
+    this.events.on('chestRemoved', (chestId) => {
+      this.chests.getChildren().forEach((chest) => {
+        if (chest.id === chestId) {
+          chest.makeInactive();
         }
       })
     });
@@ -154,6 +166,28 @@ class GameScene extends Phaser.Scene {
         if (monster.id === monsterId) {
           monster.updateHealth(health);
         }
+      })
+    });
+
+    this.events.on('updatePlayerHealth', (playerId, health) => {
+      if (health < this.player.health) {
+        this.playerDamageAudio.play();
+      }
+      this.player.updateHealth(health);
+    });
+
+    this.events.on('respawnPlayer', (playerObject) => {
+      this.playerDeathAudio.play();
+      this.player.respawn(playerObject);
+    });
+
+    this.events.on('monsterMovement', (monsters) => {
+      this.monsters.getChildren().forEach((monster) => {
+        Object.keys(monsters).forEach((monsterId) => {
+          if (monster.id === monsterId) {
+            this.physics.moveToObject(monster, monsters[monsterId], 40);
+          } 
+        })
       })
     });
 

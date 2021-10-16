@@ -47,25 +47,61 @@ class GameManager {
     }
 
     setupEventListeners() {
-        this.scene.events.on('pickUpChest', (chestId) => {
+        this.scene.events.on('pickUpChest', (chestId, playerId)  => {
             //mettre a jour le spawner
             if (this.chests[chestId]) {
+                const { gold } = this.chests[chestId];
+
+                //mettre à jour les gold de notre joueur
+                this.players[playerId].updateGold(gold);
+                this.scene.events.emit('updateScore', this.players[playerId].gold);
+                
+                //enlever le coffre
                 this.spawners[this.chests[chestId].spawnerId].removeObject(chestId);
+                this.scene.events.emit('chestRemoved', chestId);
+
             }
         });
 
-        this.scene.events.on('monsterAttacked', (monsterId) => {
+        this.scene.events.on('monsterAttacked', (monsterId, playerId) => {
             //mettre a jour le spawner
             if (this.monsters[monsterId]) {
+                const { gold, attack } = this.monsters[monsterId];
                 // soustrait la vie du MonsterModel
                 this.monsters[monsterId].loseHealth();
 
                 //verifier la vie du monstre, si mort, enlever l'objet monstre
                 if (this.monsters[monsterId].health <= 0) {
+
+                    //mettre à jour les gold de notre joueur
+                    this.players[playerId].updateGold(gold);
+                    this.scene.events.emit('updateScore', this.players[playerId].gold);
+
+                    //enleve le monstre
                     this.spawners[this.monsters[monsterId].spawnerId].removeObject(monsterId);
                     this.scene.events.emit('monsterRemoved', monsterId);
+
+                    //ajouter de la vie bonus à notre joueur
+                    this.players[playerId].updateHealth(2);
+                    this.scene.events.emit('updatePlayerHealth', playerId, this.players[playerId].health);
                 } else {
+                    //mettre a jour la vie du joueur
+                    this.players[playerId].updateHealth(-attack);
+                    this.scene.events.emit('updatePlayerHealth', playerId, this.players[playerId].health);
+
+                    //mettre a jour la vie du monstre
                     this.scene.events.emit('updateMonsterHealth', monsterId, this.monsters[monsterId].health);
+
+                    //vérifier la santé du joueur, si en dessous de 0, le respawn
+                    if (this.players[playerId].health <= 0) {
+                        //mettre a jour les golds du joueur
+                        this.players[playerId].updateGold(parseInt(-this.players[playerId].gold / 2, 10));
+                        this.scene.events.emit('updateScore', this.players[playerId].gold);
+
+                        //respawn le joueur
+                        this.players[playerId].respawn();
+                        this.scene.events.emit('respawnPlayer', this.players[playerId]);
+                    }
                 }
 
             }
@@ -105,7 +141,8 @@ class GameManager {
                 config, 
                 this.monsterLocations[key], 
                 this.addMonster.bind(this), 
-                this.deleteMonster.bind(this)
+                this.deleteMonster.bind(this),
+                this.moveMonsters.bind(this),
             );
             this.spawners[spawner.id] = spawner;
         });
@@ -133,5 +170,9 @@ class GameManager {
 
     deleteMonster(monsterId) {
         delete this.monsters[monsterId];
+    }
+
+    moveMonsters() {
+        this.scene.events.emit('monsterMovement', this.monsters);
     }
 }

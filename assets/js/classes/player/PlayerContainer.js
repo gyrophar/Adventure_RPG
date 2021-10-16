@@ -6,7 +6,7 @@ const Direction = {
 }
 
 class PlayerContainer extends Phaser.GameObjects.Container {
-    constructor(scene, x, y, key, frame, health, maxHealth, id) {
+    constructor(scene, x, y, key, frame, health, maxHealth, id, attackAudio) {
         super(scene, x, y);
         this.scene = scene; // La scene sur laquel ce joueur sera ajouté
         this.velocity = 160; // La vitesse de notre joueur
@@ -17,6 +17,7 @@ class PlayerContainer extends Phaser.GameObjects.Container {
         this.health = health;
         this.maxHealth = maxHealth;
         this.id = id;
+        this.attackAudio = attackAudio;
 
         // mettre une taille à notre container
         this.setSize(64, 64);
@@ -40,6 +41,33 @@ class PlayerContainer extends Phaser.GameObjects.Container {
         this.scene.physics.world.enable(this.weapon);
         this.add(this.weapon);
         this.weapon.alpha = 0;
+
+        // créer la barre de vie du joueur
+        this.createHealthBar();
+    }
+
+    createHealthBar() {
+        this.healthBar = this.scene.add.graphics();
+        this.updateHealthBar();
+    }
+
+    updateHealthBar() {
+        this.healthBar.clear();
+        this.healthBar.fillStyle(0xffffff, 1);
+        this.healthBar.fillRect(this.x - 32, this.y - 40, 64, 5);
+        this.healthBar.fillGradientStyle(0xff0000, 0xffffff, 4);
+        this.healthBar.fillRect(this.x - 32, this.y - 40, 64 * this.health / this.maxHealth, 5);
+    }
+
+    updateHealth(health) {
+        this.health = health;
+        this.updateHealthBar();
+    }
+
+    respawn(playerObject) {
+        this.health = playerObject.health;
+        this.setPosition(playerObject.x, playerObject.y);
+        this.updateHealthBar();
     }
 
     update(cursors) {
@@ -70,6 +98,7 @@ class PlayerContainer extends Phaser.GameObjects.Container {
         if (Phaser.Input.Keyboard.JustDown(cursors.space) && !this.playerAttacking) {
             this.weapon.alpha = 1;
             this.playerAttacking = true;
+            this.attackAudio.play();
             this.scene.time.delayedCall(150, () => {
                 this.weapon.alpha = 0;
                 this.playerAttacking = false,
@@ -97,5 +126,7 @@ class PlayerContainer extends Phaser.GameObjects.Container {
                 this.weapon.flipX = true;
             }
         }
+
+        this.updateHealthBar();
     }
 }
