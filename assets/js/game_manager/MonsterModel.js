@@ -11,11 +11,12 @@ class MonsterModel {
         this.maxHealth = health;
     }
 
-
+    // mécanique de perte de vie des monstres
     loseHealth() {
         this.health -= 1;
     }
 
+    // mécanique de mouvement des monstres
     move() {
         const randomPosition = randomNumber(1, 8);
         const distance = 64;

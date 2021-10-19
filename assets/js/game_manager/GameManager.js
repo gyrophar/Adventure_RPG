@@ -13,6 +13,7 @@ class GameManager {
         this.monsterLocations = {};
     }
 
+    // 
     setup() {
         this.parseMapData();
         this.setupEventListeners();
@@ -20,6 +21,7 @@ class GameManager {
         this.spawnPlayer();
     }
 
+    // recuperer les données de la carte et de chaque objet sur la carte (joueur, coffre, monstre)
     parseMapData() {
         this.mapData.forEach((layer) => {
             if (layer.name === 'player_locations') {
@@ -46,6 +48,7 @@ class GameManager {
         });
     }
 
+    // ajouter les evenements pour futures références/actions
     setupEventListeners() {
         this.scene.events.on('pickUpChest', (chestId, playerId)  => {
             //mettre a jour le spawner
@@ -108,6 +111,7 @@ class GameManager {
         });
     }
 
+    // créer le spawner des objets
     setupSpawners() {
 
         const config = {
@@ -148,30 +152,36 @@ class GameManager {
         });
     }
 
+    // créer le spawner du joueur
     spawnPlayer() {
         const player = new PlayerModel(this.playerLocations);
         this.players[player.id] = player;
         this.scene.events.emit('spawnPlayer', player); 
     }
 
+    // émission de l'evenement d'ajout de coffres
     addChest(chestId, chest) {
         this.chests[chestId] = chest;
         this.scene.events.emit('chestSpawned', chest);
     }
 
+    //  émission de l'evenement de retrait de coffres
     deleteChest(chestId) {
         delete this.chests[chestId];
     }
 
+    //  émission de l'evenement d'ajout de monstres
     addMonster(monsterId, monster) {
         this.monsters[monsterId] = monster;
         this.scene.events.emit('monsterSpawned', monster);
     }
 
+    //  émission de l'evenement de retrait de monstres
     deleteMonster(monsterId) {
         delete this.monsters[monsterId];
     }
 
+    //  émission de l'evenement de mouvement des monstres
     moveMonsters() {
         this.scene.events.emit('monsterMovement', this.monsters);
     }

@@ -14,6 +14,8 @@ class Spawner {
         this.start();
     }
 
+    //faire apparaitre toutes les "x" secondes un objet si le nombre d'objet maximum n'est pas atteint
+    // et faire bouger les monstres toutes les "x" secondes
     start() {
         this.interval = setInterval(() => {
             if (this.objectsCreated.length < this.limit) {
@@ -23,6 +25,7 @@ class Spawner {
         if (this.objectType === SpawnerType.MONSTER) this.moveMonsters();
     }
 
+    // faire apparaitre les coffres et les monstres
     spawnObject() {
         if (this.objectType === SpawnerType.CHEST) {
             this.spawnChest();
@@ -31,7 +34,7 @@ class Spawner {
         }
     }
 
-
+    // lors de l'apparition d'un coffre, choisir la location
     spawnChest() {
         const location = this.pickRandomLocation();
         const chest = new ChestModel(location[0], location[1], randomNumber(10, 20), this.id);
@@ -39,6 +42,7 @@ class Spawner {
         this.addObject(chest.id, chest);
     }
 
+    // lors de l'apparition d'un monstre, choisir sa location et les caractéristiques du monstre
     spawnMonster() {
         const location = this.pickRandomLocation();
         const monster = new MonsterModel(
@@ -54,6 +58,7 @@ class Spawner {
         this.addObject(monster.id, monster);
     }
 
+    // mécanique de choix aleatoire de location
     pickRandomLocation() {
         const location = this.spawnLocations[Math.floor(Math.random() * this.spawnLocations.length)];
         const invalidLocation = this.objectsCreated.some((object) => {
@@ -67,11 +72,13 @@ class Spawner {
         return location;
     }
 
+    // mecanique de soustraction d'objets de la carte
     removeObject(id) {
         this.objectsCreated = this.objectsCreated.filter(object => object.id !== id);
         this.deleteObject(id);
     }
 
+    // mécanique de mouvement des monstres
     moveMonsters() {
         this.moveMonsterInterval = setInterval(() => {
             this.objectsCreated.forEach((monster) => {

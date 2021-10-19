@@ -124,12 +124,15 @@ class GameScene extends Phaser.Scene {
     // faire apparaitre un nouveau coffre
     this.events.emit('pickUpChest', chest.id, this.player.id);
   }
-
+  
+  
+  // Créer la carte
   createMap() {
-    // Créer la carte
+
     this.map = new Map(this, 'map', 'background', 'background', 'blocked');
   }
 
+  // agir lorsque les évenements sot appelés par le GameManager, et appeler les méthodes correspondantes.
   createGameManager() {
     this.events.on('spawnPlayer', (playerObject) => {
       this.createPlayer(playerObject);

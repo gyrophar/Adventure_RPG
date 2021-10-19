@@ -13,12 +13,14 @@ class Chest extends Phaser.Physics.Arcade.Image {
     this.setScale(2);
   }
 
+  // affiche un nouveau coffre 
   makeActive() {
     this.setActive(true);
     this.setVisible(true);
     this.body.checkCollision.none = false;
   }
 
+  // enleve le coffre de la carte lorsque le joueur le collecte
   makeInactive() {
     this.setActive(false);
     this.setVisible(false);

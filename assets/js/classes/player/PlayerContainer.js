@@ -1,3 +1,5 @@
+
+// ENUM
 const Direction = {
     RIGHT: 'RIGHT',
     LEFT: 'LEFT',
@@ -46,11 +48,13 @@ class PlayerContainer extends Phaser.GameObjects.Container {
         this.createHealthBar();
     }
 
+    // Creation de la barre de vie
     createHealthBar() {
         this.healthBar = this.scene.add.graphics();
         this.updateHealthBar();
     }
 
+    // Mettre à jour la barre de vie du joueur
     updateHealthBar() {
         this.healthBar.clear();
         this.healthBar.fillStyle(0xffffff, 1);
@@ -59,17 +63,21 @@ class PlayerContainer extends Phaser.GameObjects.Container {
         this.healthBar.fillRect(this.x - 32, this.y - 40, 64 * this.health / this.maxHealth, 5);
     }
 
+
+    // Mettre à jour la vie du joueur
     updateHealth(health) {
         this.health = health;
         this.updateHealthBar();
     }
 
+    // Respawn le joueur lorsqu'il meurt
     respawn(playerObject) {
         this.health = playerObject.health;
         this.setPosition(playerObject.x, playerObject.y);
         this.updateHealthBar();
     }
 
+    // processus de mise à jour du joueur (direction, attaque)
     update(cursors) {
         this.body.setVelocity(0);
 

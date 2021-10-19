@@ -8,7 +8,7 @@ class Map {
         this.createMap();
     }
 
-
+//créer la carte dans Phaser
 createMap() {
 
     // créer la carte Tiled

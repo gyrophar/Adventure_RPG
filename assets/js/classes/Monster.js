@@ -24,11 +24,13 @@ class Monster extends Phaser.Physics.Arcade.Image {
         this.createHealthBar();
     }
 
+    // créer la barre de vie du monstre
     createHealthBar() {
         this.healthBar = this.scene.add.graphics();
         this.updateHealthBar();
     }
 
+    // mettre à jour la barre de vie du monstre
     updateHealthBar() {
         this.healthBar.clear();
         this.healthBar.fillStyle(0xffffff, 1);
@@ -37,11 +39,13 @@ class Monster extends Phaser.Physics.Arcade.Image {
         this.healthBar.fillRect(this.x, this.y - 8, 64 * this.health / this.maxHealth, 5);
     }
 
+    // mettre à jour la vie du monstre
     updateHealth(health) {
         this.health = health;
         this.updateHealthBar();
     }
 
+    // afficher un nouveau monstre sur la carte
     makeActive() {
         this.setActive(true);
         this.setVisible(true);
@@ -49,6 +53,7 @@ class Monster extends Phaser.Physics.Arcade.Image {
         this.updateHealthBar();
     }
 
+    //enlever le monstre de la carte lorsque vaincu
     makeInactive() {
         this.setActive(false);
         this.setVisible(false);
@@ -56,6 +61,7 @@ class Monster extends Phaser.Physics.Arcade.Image {
         this.healthBar.clear();
     }
 
+    // mecanique de mise à jour (barre de vie)
     update() {
         this.updateHealthBar();
     }

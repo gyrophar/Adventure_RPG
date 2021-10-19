@@ -3,6 +3,7 @@ class BootScene extends Phaser.Scene {
     super('Boot');
   }
 
+  // Précharger les données avant affichage
   preload() {
     // charger les images
     this.loadImages();
@@ -14,6 +15,7 @@ class BootScene extends Phaser.Scene {
     this.loadTileMap();
   }
 
+  // charger les images présentes plus tard dans la page
   loadImages() {
     this.load.image('button1', 'assets/images/ui/blue_button01.png');
     this.load.image('button2', 'assets/images/ui/blue_button02.png');
@@ -21,12 +23,14 @@ class BootScene extends Phaser.Scene {
     this.load.image('background', 'assets/level/background-extruded.png');
   }
 
+  // charger les spriteSheets utilisés plus tard dans la page
   loadSpriteSheets() {
     this.load.spritesheet('items', 'assets/images/items.png', { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('characters', 'assets/images/characters.png', { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('monsters', 'assets/images/monsters.png', { frameWidth: 32, frameHeight: 32 });
   }
 
+  // charger les fichiers audio utilisé plus tard dans la page
   loadAudio() {
     this.load.audio('goldSound', ['assets/audio/Pickup.wav']);
     this.load.audio('ennemyDeath', ['assets/audio/EnemyDeath.wav']);
@@ -35,11 +39,13 @@ class BootScene extends Phaser.Scene {
     this.load.audio('playerDeath', ['assets/audio/PlayerDeath.wav']);
   }
 
+  // charger le fichier de la carte
   loadTileMap() {
     // map au format JSON
     this.load.tilemapTiledJSON('map', 'assets/level/large_level.json');
   }
 
+  // afficher la page "title screen"
   create() {
     this.scene.start('Title');
   }
